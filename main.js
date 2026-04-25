@@ -763,16 +763,18 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
       new obsidian.Setting(containerEl)
         .setName('Step 6 — Connect your X account')
         .setDesc(s.tokens ? `Connected as @${s.handle || 'unknown'}.` : 'Once your Client ID is entered, click Connect to authorise in your browser.')
-        .addButton(btn => btn
-          .setButtonText(s.tokens ? 'Disconnect' : 'Connect X')
-          .onClick(async () => {
+        .addButton(btn => {
+          btn.setButtonText(s.tokens ? 'Disconnect' : 'Connect X');
+          if (!s.tokens) btn.setCta();
+          btn.onClick(async () => {
             if (s.tokens) {
               this.plugin.x.disconnect();
               this.display();
             } else {
               await this.plugin.x.beginAuthFlow();
             }
-          }));
+          });
+        });
 
       if (s.tokens) {
         new obsidian.Setting(containerEl)
