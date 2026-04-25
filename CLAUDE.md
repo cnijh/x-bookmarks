@@ -69,7 +69,6 @@ Never skip the commit + `/wt-test` cycle after any change.
   tagOnImport,          // '' by default (opt-in tag for all bookmarks)
   organizeByFolder,     // default true
   tagByFolder,          // default true — primary tagging mechanism
-  allModeFetchPerFolder // default false
 }
 ```
 

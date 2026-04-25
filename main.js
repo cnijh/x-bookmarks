@@ -20,7 +20,6 @@ const DEFAULTS = {
   tagOnImport: '',           // opt-in: when set, tag applied to all imported bookmarks
   organizeByFolder: true,    // store bookmarks in <vaultFolder>/<slug>/ when folder is known
   tagByFolder: true,         // add <slug> tag to YAML frontmatter when folder is known
-  allModeFetchPerFolder: false,
 };
 
 const obsidian = require('obsidian');
@@ -423,7 +422,7 @@ class XClient {
       await this._ensureVaultFolder(s.vaultFolder);
       const foldersSupported = s.foldersSupported === true;
       const selectedMode = s.folderSelection.mode === 'selected';
-      const shouldFetchPerFolder = foldersSupported && (selectedMode || s.allModeFetchPerFolder);
+      const shouldFetchPerFolder = foldersSupported && (selectedMode || s.organizeByFolder !== false);
 
       const rootFolder = (s.vaultFolder || 'X Bookmarks').replace(/\/$/, '');
       this._seenTweetIds = new Set();
@@ -860,14 +859,6 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
               .setValue(s.tagByFolder !== false)
               .onChange(async v => { s.tagByFolder = v; await this.plugin.saveSettings(); }));
 
-          if (s.folderSelection.mode === 'all') {
-            new obsidian.Setting(containerEl)
-              .setName('Fetch per folder in All mode')
-              .setDesc('In "All bookmarks" mode, fetch each X folder separately so bookmarks get folder attribution for subfolders and tags. Uses more API calls (one extra request per folder per sync).')
-              .addToggle(tog => tog
-                .setValue(s.allModeFetchPerFolder === true)
-                .onChange(async v => { s.allModeFetchPerFolder = v; await this.plugin.saveSettings(); }));
-          }
         }
 
         new obsidian.Setting(containerEl)
