@@ -716,14 +716,18 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
     if (s.enabled) {
       new obsidian.Setting(containerEl)
         .setName('Step 1 — Create an X app')
-        .setDesc('Go to the X Developer Portal and create a new app. Choose Native App as the app type (recommended — no client secret needed). Set App Permissions to Read only.')
+        .setDesc('Go to the X Developer Portal and create a new app. Development mode is fine.')
         .addButton(btn => btn
           .setButtonText('Open developer portal')
           .onClick(() => window.open('https://developer.x.com/en/portal/dashboard')));
 
       new obsidian.Setting(containerEl)
-        .setName('Step 2 — Add Redirect URI to your app')
-        .setDesc('In your app\'s Authentication Settings, enable OAuth 2.0. Under Redirect URIs, add this value exactly (no trailing slash).')
+        .setName('Step 2 — Set up User Authentication')
+        .setDesc('On your app\'s Keys and Tokens page, scroll to "User authentication settings" and click Set up. Choose Native App as the app type. Set permissions to Read only.');
+
+      new obsidian.Setting(containerEl)
+        .setName('Step 3 — Add Redirect URI')
+        .setDesc('Still in User authentication settings, add this Redirect URI exactly (no trailing slash).')
         .addButton(btn => btn
           .setButtonText('Copy redirect URI')
           .onClick(() => {
@@ -732,8 +736,8 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
           }));
 
       new obsidian.Setting(containerEl)
-        .setName('Step 3 — Add Website URL to your app')
-        .setDesc('X requires a Website URL field. Use this value — the plugin does not use it.')
+        .setName('Step 4 — Add Website URL')
+        .setDesc('X requires a Website URL. Use this value — the plugin does not use it.')
         .addButton(btn => btn
           .setButtonText('Copy website URL')
           .onClick(() => {
@@ -742,7 +746,7 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
           }));
 
       new obsidian.Setting(containerEl)
-        .setName('Step 4 — Enter your Client ID')
+        .setName('Step 5 — Enter your Client ID')
         .setDesc('Find it under Keys and Tokens in your X app dashboard.')
         .addText(text => text
           .setPlaceholder('e.g. a1B2c3D4e5…')
@@ -750,7 +754,7 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
           .onChange(async v => { s.clientId = v.trim(); await this.plugin.saveSettings(); }));
 
       new obsidian.Setting(containerEl)
-        .setName('Step 5 — Enter your Client Secret')
+        .setName('Step 6 — Enter your Client Secret')
         .setDesc('Only required for Confidential Client apps (Web App / Bot type). Leave blank if you chose Native App.')
         .addText(text => {
           text.inputEl.type = 'password';
@@ -761,7 +765,7 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
         });
 
       new obsidian.Setting(containerEl)
-        .setName('Step 6 — Connect your X account')
+        .setName('Step 7 — Connect your X account')
         .setDesc(s.tokens ? `Connected as @${s.handle || 'unknown'}.` : 'Once your Client ID is entered, click Connect to authorise in your browser.')
         .addButton(btn => {
           btn.setButtonText(s.tokens ? 'Disconnect' : 'Connect X');
