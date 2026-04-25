@@ -60,10 +60,9 @@ Never skip the commit + `/wt-test` cycle after any change.
   folderSelection,      // { mode: 'all' | 'selected', ids: [] }
   availableFolders,     // [{ id, name }]
   foldersSupported,     // null | true | false
-  syncFrequencyHours,   // default 24
+  scheduleHours,        // null = no auto-fetch; integer hours ≥1, recurring while Obsidian is open
   lastFetchIso,
   lastSeenTweetId,
-  autoFetchOnLoad,      // default true
   failureCount,
   nextRetryAt,
   fetchLog,             // ring buffer, cap 20

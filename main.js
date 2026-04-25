@@ -11,10 +11,9 @@ const DEFAULTS = {
   folderSelection: { mode: 'all', ids: [] },  // mode: 'all' | 'selected'
   availableFolders: [],      // [{ id, name }] cached from last listFolders
   foldersSupported: null,    // null=unknown, true/false set after first folder-list attempt
-  syncFrequencyHours: 24,
+  scheduleHours: null,        // null = no auto-fetch; integer hours ≥1 otherwise
   lastFetchIso: '',
   lastSeenTweetId: '',       // since_id cursor
-  autoFetchOnLoad: true,
   failureCount: 0,
   nextRetryAt: 0,            // ms epoch
   fetchLog: [],              // [{ tsIso, ok, count, error? }] ring buffer cap 20
@@ -145,6 +144,7 @@ class XClient {
     this._pendingStartedAt = 0;
     this._refreshInFlight = null;
     this._syncInFlight = false;
+    this._scheduleTimerId = null;
     this._rerender = null;
   }
 
@@ -645,15 +645,29 @@ class XClient {
     } catch (e) { /* ignore race */ }
   }
 
-  async maybeAutoFetch() {
+  _stopSchedule() {
+    if (this._scheduleTimerId) { window.clearInterval(this._scheduleTimerId); this._scheduleTimerId = null; }
+  }
+
+  _startSchedule() {
     const s = this._s;
-    if (!s.enabled || !s.tokens || !s.autoFetchOnLoad) return;
+    if (!s.enabled || !s.tokens) return;
+    const raw = s.scheduleHours;
+    if (raw == null || raw === '' || !(Number(raw) >= 1)) return;
+    const hours = Math.max(1, Math.floor(Number(raw)));
+    const intervalMs = hours * 3600 * 1000;
     const now = Date.now();
-    if (now < (s.nextRetryAt || 0)) return;
     const lastFetch = s.lastFetchIso ? Date.parse(s.lastFetchIso) : 0;
-    if (now - lastFetch >= (s.syncFrequencyHours || 24) * 3600 * 1000) {
-      await this.syncNow({ reason: 'auto' });
+    if (now >= (s.nextRetryAt || 0) && (now - lastFetch) >= intervalMs) {
+      this.syncNow({ reason: 'schedule' });
     }
+    this._scheduleTimerId = window.setInterval(() => {
+      const s2 = this._s;
+      if (!s2.enabled || !s2.tokens) return;
+      if (Date.now() < (s2.nextRetryAt || 0)) return;
+      this.syncNow({ reason: 'schedule' });
+    }, intervalMs);
+    this.plugin.registerInterval(this._scheduleTimerId);
   }
 }
 
@@ -676,7 +690,7 @@ class XBookmarksPlugin extends obsidian.Plugin {
 
     this.addSettingTab(new XBookmarksSettingTab(this.app, this));
 
-    this.app.workspace.onLayoutReady(() => this.x.maybeAutoFetch());
+    this.app.workspace.onLayoutReady(() => this.x._startSchedule());
   }
 
   async loadSettings() {
@@ -685,6 +699,8 @@ class XBookmarksPlugin extends obsidian.Plugin {
     // they live under data.settings.x — lift to top level.
     const source = data.settings?.x ? data.settings.x : data;
     this.settings = { ...DEFAULTS, ...source };
+    delete this.settings.syncFrequencyHours;
+    delete this.settings.autoFetchOnLoad;
     this.settings.folderSelection = { ...DEFAULTS.folderSelection, ...(this.settings.folderSelection || {}) };
   }
 
@@ -855,15 +871,18 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
         }
 
         new obsidian.Setting(containerEl)
-          .setName('Sync frequency (hours)')
-          .setDesc('Minimum hours between automatic fetches on Obsidian startup. Set to 0 to disable auto-sync on startup.')
+          .setName('Auto-fetch every (hours)')
+          .setDesc('Number of hours between automatic fetches. Leave empty to disable.')
           .addText(text => text
-            .setPlaceholder('24')
-            .setValue(String(s.syncFrequencyHours ?? 24))
+            .setPlaceholder('e.g. 6')
+            .setValue(s.scheduleHours == null ? '' : String(s.scheduleHours))
             .onChange(async v => {
-              const n = parseFloat(v);
-              s.syncFrequencyHours = isNaN(n) || n < 0 ? 24 : n;
+              const trimmed = (v || '').trim();
+              if (trimmed === '') { s.scheduleHours = null; }
+              else { const n = parseFloat(trimmed); s.scheduleHours = (isNaN(n) || n < 1) ? 1 : Math.floor(n); }
               await this.plugin.saveSettings();
+              this.plugin.x._stopSchedule();
+              this.plugin.x._startSchedule();
             }));
 
         const lastLog = Array.isArray(s.fetchLog) && s.fetchLog.length ? s.fetchLog[s.fetchLog.length - 1] : null;
