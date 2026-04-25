@@ -492,7 +492,7 @@ class XClient {
         new obsidian.Notice(`X Bookmarks: rate limited.${retryAt ? ` Retry after ${retryAt}.` : ''}`, 6000);
       } else if (e.isUnauthorized) {
         this.disconnect();
-        new obsidian.Notice('X Bookmarks: session expired — reconnect in Settings → X Bookmarks.', 6000);
+        new obsidian.Notice('X Bookmarks: token expired — reconnect in Settings → X Bookmarks.', 6000);
         return;
       } else {
         s.failureCount++;
@@ -694,8 +694,7 @@ class XBookmarksPlugin extends obsidian.Plugin {
 
   async loadSettings() {
     const data = await this.loadData() || {};
-    // Migration shim: if settings were copied from a Sessions data.json,
-    // they live under data.settings.x — lift to top level.
+    // Migration shim: legacy data.json may nest settings under data.settings.x — lift to top level.
     const source = data.settings?.x ? data.settings.x : data;
     this.settings = { ...DEFAULTS, ...source };
     delete this.settings.syncFrequencyHours;

@@ -95,11 +95,6 @@ Article body or tweet text (t.co links expanded)
 
 **Jina 429s.** X native articles (`x.com/i/article/`) are fetched via Jina AI's reader. If Jina is rate-limited during a sync, the remaining native articles in that sync will save without body content. They'll pick up content on the next successful sync if the note is deleted first.
 
-**Token expiry.** If you see "session expired — reconnect", go to Settings → X Bookmarks → Step 6 → Connect X to re-authorise.
-
-**Migrating from Sessions.** If you previously used the X bookmarks feature inside the Sessions plugin:
-- It is recommended to register a **separate X developer app** for this plugin, because sharing an app between two Obsidian plugins causes OAuth token refresh conflicts (both plugins try to rotate the same refresh token).
-- Before connecting in X Bookmarks, disable Sessions's X integration to avoid both plugins fetching simultaneously and hitting rate limits faster.
-- Existing bookmark notes in your vault will be skipped by the dedup logic (via `tweet_id` frontmatter), so no duplicates are created regardless.
+**Token expiry.** If you see "token expired — reconnect", go to Settings → X Bookmarks → Step 6 → Connect X to re-authorise.
 
 **Body extraction is best-effort.** Article body content is fetched via regex scraping (`og:description`, `<article>` tags, etc.). Modern JS-rendered sites often return empty bodies — this is expected. The note will still be created with title, source, and description.
