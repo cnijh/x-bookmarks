@@ -1,0 +1,27 @@
+/* ─── Settings tab ────────────────────────────────────────────────────────── */
+
+.xbookmarks-settings-section-header {
+  font-family: var(--font-interface), system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 28px 0 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.xbookmarks-settings-notice {
+  margin: 0 0 0.75rem 0;
+  padding: 8px 12px;
+  background: var(--background-modifier-error-rgb, var(--background-secondary));
+  border-left: 3px solid var(--text-muted);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+.xbookmarks-folder-toggle .setting-item-name {
+  font-size: 0.92em;
+}

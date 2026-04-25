@@ -1,0 +1,9 @@
+{
+  "id": "x-bookmarks",
+  "name": "X Bookmarks",
+  "version": "0.1.0",
+  "minAppVersion": "0.15.0",
+  "description": "Import your X (Twitter) bookmarks into your vault as markdown notes.",
+  "author": "cnijh",
+  "isDesktopOnly": true
+}
