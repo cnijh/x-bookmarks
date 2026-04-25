@@ -704,6 +704,7 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
   display() {
     const { containerEl } = this;
     containerEl.empty();
+    this.plugin.x._rerender = () => this.display();
     const s = this.plugin.settings;
 
     new obsidian.Setting(containerEl)
@@ -769,11 +770,11 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
         .setDesc(s.tokens ? `Connected as @${s.handle || 'unknown'}.` : 'Once your Client ID is entered, click Connect to authorise in your browser.')
         .addButton(btn => {
           btn.setButtonText(s.tokens ? 'Disconnect' : 'Connect X');
-          if (!s.tokens) btn.setCta();
+          if (s.tokens) btn.setWarning();
+          else btn.setCta();
           btn.onClick(async () => {
             if (s.tokens) {
               this.plugin.x.disconnect();
-              this.display();
             } else {
               await this.plugin.x.beginAuthFlow();
             }
@@ -888,6 +889,10 @@ class XBookmarksSettingTab extends obsidian.PluginSettingTab {
             }));
       }
     }
+  }
+
+  hide() {
+    this.plugin.x._rerender = null;
   }
 }
 
