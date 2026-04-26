@@ -65,7 +65,7 @@ Click **Connect X** and complete the OAuth flow in your browser. Once authorised
 | **Organize by X folder** | On | Store bookmarks in `<vaultFolder>/<folder-slug>/` subfolders |
 | **Tag by X folder** | On | Add the X folder slug as a tag in frontmatter |
 | **Bookmark folder scope** | All | Import all bookmarks or only selected X bookmark folders |
-| **Sync frequency (hours)** | 24 | Minimum hours between auto-fetches at Obsidian startup. Set 0 to disable. |
+| **Auto-fetch every (hours)** | _(off)_ | Recurring auto-fetch interval while Obsidian is open. Leave blank to disable. |
 
 ---
 
